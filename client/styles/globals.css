@@ -1,0 +1,305 @@
+/**
+ * Global Styles
+ * Tailwind CSS configuration with custom theme variables
+ * Dark mode support via CSS variables
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for theming */
+:root {
+  --color-primary: 0 0% 0%; /* gray-900 */
+  --color-secondary: 0 0% 100%; /* white */
+  --color-accent: 37 92% 50%; /* yellow-400 */
+  --color-border: 0 0% 89%; /* gray-200 */
+  --color-text: 0 0% 17%; /* gray-900 */
+  --color-text-muted: 0 0% 45%; /* gray-600 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: 0 0% 100%;
+    --color-secondary: 0 0% 9%;
+    --color-accent: 37 92% 50%;
+    --color-border: 0 0% 27%;
+    --color-text: 0 0% 98%;
+    --color-text-muted: 0 0% 63%;
+  }
+}
+
+/* Base Tailwind utilities */
+@layer base {
+  /* Custom fonts */
+  body {
+    @apply font-sans;
+  }
+
+  h1 {
+    @apply scroll-m-20;
+  }
+
+  h2 {
+    @apply scroll-m-20;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Remove default focus outline - we'll use custom styling */
+  button:focus-visible {
+    @apply outline-none ring-2 ring-gray-400 ring-offset-2;
+  }
+
+  input:focus-visible {
+    @apply outline-none ring-2 ring-gray-400 ring-offset-2;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-gray-200 text-gray-900;
+  }
+
+  /* Webkit scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full hover:bg-gray-500;
+  }
+
+  /* Mozilla Firefox */
+  * {
+    scrollbar-color: #9ca3af #f3f4f6;
+    scrollbar-width: thin;
+  }
+}
+
+/* Custom Tailwind components */
+@layer components {
+  /* Utility classes */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-lg border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300;
+  }
+
+  .btn-outline {
+    @apply btn border border-gray-300 text-gray-900 hover:bg-gray-50 active:bg-gray-100;
+  }
+
+  .btn-ghost {
+    @apply btn text-gray-700 hover:bg-gray-100 active:bg-gray-200;
+  }
+
+  /* Input fields */
+  .input {
+    @apply px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:border-transparent;
+  }
+
+  .input:disabled {
+    @apply bg-gray-100 cursor-not-allowed;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Loading skeleton */
+  .skeleton {
+    @apply bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-pulse;
+  }
+
+  /* Container */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grid layouts */
+  .grid-auto-fit {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  /* Gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  }
+}
+
+/* Responsive utilities */
+@layer utilities {
+  /* Flexbox utilities */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  /* Grid utilities */
+  .grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  .grid-3 {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+  }
+
+  .grid-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  /* Text utilities */
+  .text-truncate {
+    @apply truncate;
+  }
+
+  .text-clamp {
+    @apply line-clamp-2;
+  }
+
+  /* Spacing utilities */
+  .space-y-safe {
+    @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+
+  .space-x-safe {
+    @apply space-x-4 sm:space-x-6 lg:space-x-8;
+  }
+
+  /* Vision accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  /* Components can override for dark mode */
+  .card {
+    @apply bg-gray-900 border-gray-800;
+  }
+
+  .input {
+    @apply bg-gray-800 border-gray-700 text-white placeholder-gray-400;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none;
+  }
+
+  body {
+    @apply bg-white;
+  }
+}
