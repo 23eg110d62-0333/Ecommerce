@@ -47,16 +47,20 @@ const wishlistSchema = new Schema<IWishlist>(
 
 // Prevent duplicate items in wishlist
 wishlistSchema.pre("save", async function (next) {
-  const uniqueItems = Array.from(
-    new Map(
-      this.items.map((item) => [
-        `${item.productId}-${item.selectedColor}-${item.selectedSize}`,
-        item,
-      ])
-    ).values()
-  );
-  this.items = uniqueItems;
-  next();
+  try {
+    const uniqueItems = Array.from(
+      new Map(
+        this.items.map((item) => [
+          `${item.productId}-${item.selectedColor || ""}-${item.selectedSize || ""}`,
+          item,
+        ])
+      ).values()
+    );
+    this.items = uniqueItems;
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
 });
 
 // Index for faster queries

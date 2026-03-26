@@ -137,7 +137,7 @@ function findBaseSize(heightCm: number, weightKg: number, bodyType: string): str
 /**
  * Adjusts base size based on fit preference
  */
-function adjustSizeByFitPreference(baseSize: string, fitPreference: string): String {
+function adjustSizeByFitPreference(baseSize: string, fitPreference: string): string {
   const sizeIndex = SIZES.indexOf(baseSize);
 
   if (fitPreference === "slim" && sizeIndex > 0) {
@@ -215,9 +215,17 @@ export function getSizeRecommendation(
   // Adjust by fit preference
   const recommendedSize = adjustSizeByFitPreference(baseSize, input.fitPreference);
 
-  // Find alternative size
+  // Find alternative size (with bounds checking)
   const sizeIndex = SIZES.indexOf(recommendedSize);
-  const alternativeSize = input.fitPreference === "slim" ? SIZES[sizeIndex + 1] : SIZES[sizeIndex - 1];
+  let alternativeSize: string | undefined;
+  
+  if (input.fitPreference === "slim" && sizeIndex < SIZES.length - 1) {
+    // Size up for alternative if slim was recommended
+    alternativeSize = SIZES[sizeIndex + 1];
+  } else if (input.fitPreference !== "slim" && sizeIndex > 0) {
+    // Size down for alternative if regular/loose was recommended
+    alternativeSize = SIZES[sizeIndex - 1];
+  }
 
   // Calculate confidence (0-100)
   // Higher confidence when measurements align well with size ranges

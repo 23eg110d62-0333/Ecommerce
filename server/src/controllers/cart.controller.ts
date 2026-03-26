@@ -31,10 +31,10 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
     }
 
     // Validate quantity
-    if (quantity < 1) {
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 999) {
       res.status(400).json({
         success: false,
-        message: "Quantity must be at least 1",
+        message: "Quantity must be an integer between 1 and 999",
       });
       return;
     }
@@ -45,6 +45,18 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       res.status(404).json({
         success: false,
         message: "Product not found",
+      });
+      return;
+    }
+
+    // Verify stock availability for the selected variant
+    const variant = product.variants.find(
+      (v) => v.color.name === selectedColor && v.size === selectedSize
+    );
+    if (!variant || variant.stock < quantity) {
+      res.status(400).json({
+        success: false,
+        message: `Insufficient stock. Only ${variant?.stock || 0} items available for the selected color and size.`,
       });
       return;
     }
@@ -113,6 +125,8 @@ export async function getCart(req: AuthRequest, res: Response): Promise<void> {
         userId: req.userId,
         items: [],
       });
+      // Save empty cart to database on first access
+      await cart.save();
     }
 
     res.json({
@@ -140,6 +154,15 @@ export async function updateCartItem(req: AuthRequest, res: Response): Promise<v
 
     const { itemIndex, quantity } = req.body;
 
+    // Validate itemIndex is a valid non-negative integer
+    if (!Number.isInteger(itemIndex) || itemIndex < 0) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid item index. Must be a non-negative integer.",
+      });
+      return;
+    }
+
     if (quantity < 0) {
       res.status(400).json({
         success: false,
@@ -158,14 +181,21 @@ export async function updateCartItem(req: AuthRequest, res: Response): Promise<v
       return;
     }
 
+    // Validate itemIndex is within cart bounds
+    if (itemIndex >= cart.items.length) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid item index. Item not found in cart.",
+      });
+      return;
+    }
+
     if (quantity === 0) {
       // Remove item
       cart.items.splice(itemIndex, 1);
     } else {
       // Update quantity
-      if (cart.items[itemIndex]) {
-        cart.items[itemIndex].quantity = quantity;
-      }
+      cart.items[itemIndex].quantity = quantity;
     }
 
     await cart.save();
@@ -255,12 +285,12 @@ export async function toggleWishlistItem(req: AuthRequest, res: Response): Promi
       });
     }
 
-    // Check if item exists
+    // Check if item exists - use safer comparison
     const itemIndex = wishlist.items.findIndex(
       (item) =>
         item.productId.toString() === productId &&
-        item.selectedColor === selectedColor &&
-        item.selectedSize === selectedSize
+        (item.selectedColor || "") === (selectedColor || "") &&
+        (item.selectedSize || "") === (selectedSize || "")
     );
 
     if (itemIndex > -1) {

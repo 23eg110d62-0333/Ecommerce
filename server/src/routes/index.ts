@@ -38,7 +38,7 @@ router.post("/api/reviews", authenticateToken, createReview);
 /**
  * Size Recommendation Route
  */
-router.post("/api/size-recommendation", getSizeRecommendationHandler);
+router.post("/api/size-recommendation", authenticateToken, getSizeRecommendationHandler);
 
 /**
  * Authentication Routes

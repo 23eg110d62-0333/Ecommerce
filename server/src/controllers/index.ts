@@ -46,19 +46,60 @@ export async function getRelatedProducts(req: AuthRequest, res: Response): Promi
   try {
     const { id, category, limit = 8 } = req.query;
 
+    // Validate and sanitize limit
+    let limitNum = parseInt(limit as string) || 8;
+    if (limitNum < 1 || limitNum > 100) {
+      limitNum = 8; // Default safe limit
+    }
+
+    // Validate id format if provided
+    if (id && !req.app.locals.isValidObjectId?.(id)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid product ID format",
+      });
+      return;
+    }
+
     // Find the product to get its category if not provided
     let targetCategory = category;
     if (id && !category) {
       const product = await Product.findById(id);
-      targetCategory = product?.category;
+      if (!product) {
+        res.status(404).json({
+          success: false,
+          message: "Product not found",
+        });
+        return;
+      }
+      targetCategory = product.category;
+    }
+
+    // Validate category exists
+    if (!targetCategory) {
+      res.status(400).json({
+        success: false,
+        message: "Category is required",
+      });
+      return;
+    }
+
+    const validCategories = ["blazers", "trousers", "dresses", "shirts", "accessories", "outerwear"];
+    if (!validCategories.includes(targetCategory as string)) {
+      res.status(400).json({
+        success: false,
+        message: `Invalid category. Must be one of: ${validCategories.join(", ")}`,
+      });
+      return;
     }
 
     const relatedProducts = await Product.find({
       category: targetCategory,
-      _id: { $ne: id }, // Exclude the current product
+      _id: { $ne: id },
     })
-      .limit(parseInt(limit as string))
-      .select("name brand slug price discountPrice images category averageRating");
+      .limit(limitNum)
+      .select("name brand slug basePrice discountPrice images category averageRating")
+      .lean();
 
     res.json({
       success: true,
@@ -103,7 +144,8 @@ export async function getReviews(req: AuthRequest, res: Response): Promise<void>
         .populate("userId", "name avatar")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
       Review.countDocuments(filter),
     ]);
 
@@ -174,14 +216,26 @@ export async function createReview(req: AuthRequest, res: Response): Promise<voi
 
     await review.save();
 
-    // Update product rating and review count
-    const allReviews = await Review.find({ productId });
-    const avgRating =
-      allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    // Use aggregation pipeline for atomic calculation - prevents race conditions
+    const ratings = await Review.aggregate([
+      { $match: { productId: new (require("mongoose")).Types.ObjectId(productId) } },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: "$rating" },
+          reviewCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const { averageRating, reviewCount } = ratings[0] || {
+      averageRating: 0,
+      reviewCount: 0,
+    };
 
     await Product.findByIdAndUpdate(productId, {
-      averageRating: Math.round(avgRating * 10) / 10,
-      reviewCount: allReviews.length,
+      averageRating: Math.round(averageRating * 10) / 10,
+      reviewCount,
     });
 
     res.status(201).json({
@@ -212,6 +266,24 @@ export async function register(req: AuthRequest, res: Response): Promise<void> {
       res.status(400).json({
         success: false,
         message: "Missing required fields",
+      });
+      return;
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      });
+      return;
+    }
+
+    // Check password has mix of uppercase, lowercase, and numbers
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+      res.status(400).json({
+        success: false,
+        message: "Password must include uppercase letters, lowercase letters, and numbers",
       });
       return;
     }
