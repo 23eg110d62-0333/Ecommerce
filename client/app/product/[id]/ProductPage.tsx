@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
-import Image from 'next/image';
-import { Heart, Share2, Truck, RotateCcw, Lock, Users } from 'lucide-react';
+import { Heart, Truck, RotateCcw, Lock, Users } from 'lucide-react';
 import ImageGallery from '@/components/product/ImageGallery';
 import AISizeModal from '@/components/product/AISizeModal';
 import ReviewsSection from '@/components/tabs/ReviewsSection';

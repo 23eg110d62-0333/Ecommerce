@@ -65,22 +65,6 @@ export async function generateMetadata({
   }
 }
 
-// Generate static params for popular products (optional)
-export async function generateStaticParams() {
-  try {
-    // Fetch list of popular products for static generation
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?limit=50`);
-    const { data: products } = (await response.json()) as { data: Product[] };
-
-    return products.map((product) => ({
-      id: product._id,
-    }));
-  } catch (error) {
-    console.error('Error generating static params:', error);
-    return [];
-  }
-}
-
 export default async function Page({ params }: ProductPageRouteProps) {
   try {
     // Fetch product data server-side

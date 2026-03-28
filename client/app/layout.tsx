@@ -37,7 +37,9 @@ export const metadata: Metadata = {
     ],
   },
   robots: 'index, follow',
-  googleSiteVerification: 'your-verification-code-here',
+  verification: {
+    google: 'your-verification-code-here',
+  },
 };
 
 interface RootLayoutProps {

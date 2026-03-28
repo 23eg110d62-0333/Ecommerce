@@ -3,7 +3,7 @@
  * Integrates Tailwind CSS and Autoprefixer
  */
 
-module.exports = {
+export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},

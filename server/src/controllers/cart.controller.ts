@@ -171,7 +171,7 @@ export async function updateCartItem(req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    let cart = await Cart.findOne({ userId: req.userId });
+    const cart = await Cart.findOne({ userId: req.userId });
 
     if (!cart) {
       res.status(404).json({

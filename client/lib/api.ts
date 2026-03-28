@@ -6,6 +6,8 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+export type ApiPayload = Record<string, unknown>;
+
 /**
  * Generic API fetcher with error handling
  */
@@ -59,13 +61,13 @@ export async function getRelatedProducts(productId: string, category?: string) {
 /**
  * Get reviews with filters
  */
-export async function getReviews(productId: string, filters?: any) {
+export async function getReviews(productId: string, filters?: Record<string, string | number | boolean | null | undefined>) {
   const params = new URLSearchParams({ productId, limit: '6' });
 
-  if (filters?.rating) params.append('rating', filters.rating);
-  if (filters?.bodyType) params.append('bodyType', filters.bodyType);
+  if (filters?.rating) params.append('rating', String(filters.rating));
+  if (filters?.bodyType) params.append('bodyType', String(filters.bodyType));
   if (filters?.verified) params.append('verified', 'true');
-  if (filters?.page) params.append('page', filters.page);
+  if (filters?.page) params.append('page', String(filters.page));
 
   return apiFetch(`/api/reviews/${productId}?${params}`);
 }
@@ -73,7 +75,7 @@ export async function getReviews(productId: string, filters?: any) {
 /**
  * Submit a product review
  */
-export async function submitReview(token: string, reviewData: any) {
+export async function submitReview(token: string, reviewData: ApiPayload) {
   return apiFetch('/api/reviews', {
     method: 'POST',
     headers: {
@@ -86,7 +88,7 @@ export async function submitReview(token: string, reviewData: any) {
 /**
  * Get size recommendation
  */
-export async function getSizeRecommendation(input: any) {
+export async function getSizeRecommendation(input: { height: number; weight: number; unit: 'metric' | 'imperial'; bodyType: string; fitPreference: string; }) {
   return apiFetch('/api/size-recommendation', {
     method: 'POST',
     body: JSON.stringify(input),
@@ -113,7 +115,7 @@ export async function login(email: string, password: string) {
 /**
  * Cart operations
  */
-export async function addToCart(token: string, cartItem: any) {
+export async function addToCart(token: string, cartItem: ApiPayload) {
   return apiFetch('/api/cart', {
     method: 'POST',
     headers: {
@@ -153,7 +155,7 @@ export async function clearCart(token: string) {
 /**
  * Wishlist operations
  */
-export async function toggleWishlistItem(token: string, item: any) {
+export async function toggleWishlistItem(token: string, item: ApiPayload) {
   return apiFetch('/api/wishlist', {
     method: 'POST',
     headers: {
@@ -182,7 +184,7 @@ export async function getUserProfile(token: string) {
   });
 }
 
-export async function updateUserProfile(token: string, profileData: any) {
+export async function updateUserProfile(token: string, profileData: ApiPayload) {
   return apiFetch('/api/user/profile', {
     method: 'PUT',
     headers: {

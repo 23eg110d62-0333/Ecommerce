@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { Star, MessageCircle, ThumbsUp, Filter } from 'lucide-react';
 import { Review } from '@/types';
 
@@ -58,37 +57,36 @@ export default function ReviewsSection({
     setPage(1);
   }, [filters]);
 
-  // Load reviews from API
-  const loadReviews = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        productId,
-        page: page.toString(),
-        limit: '6',
-      });
-
-      if (filters.rating) params.append('rating', filters.rating.toString());
-      if (filters.bodyType) params.append('bodyType', filters.bodyType);
-      if (filters.verified) params.append('verified', 'true');
-
-      const response = await fetch(`/api/reviews/${productId}?${params}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setReviews(data.data);
-        setTotalPages(data.pagination.pages);
-      }
-    } catch (error) {
-      console.error('Error loading reviews:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadReviews = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          productId,
+          page: page.toString(),
+          limit: '6',
+        });
+
+        if (filters.rating) params.append('rating', filters.rating.toString());
+        if (filters.bodyType) params.append('bodyType', filters.bodyType);
+        if (filters.verified) params.append('verified', 'true');
+
+        const response = await fetch(`/api/reviews/${productId}?${params}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setReviews(data.data);
+          setTotalPages(data.pagination.pages);
+        }
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadReviews();
-  }, [page, filters]);
+  }, [page, filters, productId]);
 
   // Render star rating
   const renderStars = (rating: number) => {

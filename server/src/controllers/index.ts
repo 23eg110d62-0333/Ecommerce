@@ -4,6 +4,7 @@ import { Product } from "../models/Product.model";
 import { Review } from "../models/Review.model";
 import { User } from "../models/User.model";
 import { generateToken } from "../middleware/auth.middleware";
+import { Types } from "mongoose";
 
 /**
  * Product Controller
@@ -120,7 +121,7 @@ export async function getReviews(req: AuthRequest, res: Response): Promise<void>
     const { productId, rating, bodyType, page = 1, limit = 6, verified } = req.query;
 
     // Build filter object
-    const filter: any = { productId };
+    const filter: Record<string, unknown> = { productId };
 
     if (rating) {
       filter.rating = parseInt(rating as string);
@@ -218,7 +219,7 @@ export async function createReview(req: AuthRequest, res: Response): Promise<voi
 
     // Use aggregation pipeline for atomic calculation - prevents race conditions
     const ratings = await Review.aggregate([
-      { $match: { productId: new (require("mongoose")).Types.ObjectId(productId) } },
+      { $match: { productId: new Types.ObjectId(productId) } },
       {
         $group: {
           _id: null,
@@ -443,7 +444,7 @@ export async function updateUserProfile(req: AuthRequest, res: Response): Promis
 
     const { name, phone, preferences } = req.body;
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (name) updateData.name = name;
     if (phone) updateData.phone = phone;
     if (preferences) updateData.preferences = preferences;

@@ -21,6 +21,15 @@ interface AISizeModalProps {
   availableSizes: string[];
 }
 
+interface AISizeModalFormData {
+  height: string;
+  heightUnit: 'cm' | 'ft';
+  weight: string;
+  weightUnit: 'kg' | 'lbs';
+  bodyType: 'slim' | 'regular' | 'athletic' | 'curvy';
+  fitPreference: 'slim' | 'regular' | 'loose';
+}
+
 export default function AISizeModal({
   isOpen,
   onClose,
@@ -31,13 +40,13 @@ export default function AISizeModal({
   const [step, setStep] = useState<'form' | 'result'>('form');
   const [recommendation, setRecommendation] = useState<SizeRecommendationOutput | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AISizeModalFormData>({
     height: '',
     heightUnit: 'cm',
     weight: '',
     weightUnit: 'kg',
-    bodyType: 'regular' as const,
-    fitPreference: 'regular' as const,
+    bodyType: 'regular',
+    fitPreference: 'regular',
   });
 
   if (!isOpen) return null;
@@ -57,8 +66,8 @@ export default function AISizeModal({
         }
 
         // Convert to metric if imperial
-        let normalizedHeight = height;
-        let normalizedWeight = weight;
+        const normalizedHeight = height;
+        const normalizedWeight = weight;
         let unit: 'metric' | 'imperial' = 'metric';
 
         if (formData.heightUnit === 'ft') {
@@ -161,7 +170,12 @@ export default function AISizeModal({
                     />
                     <select
                       value={formData.heightUnit}
-                      onChange={(e) => setFormData({ ...formData, heightUnit: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          heightUnit: e.target.value as 'cm' | 'ft',
+                        })
+                      }
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none
                                focus:ring-2 focus:ring-gray-400"
                     >
@@ -188,7 +202,12 @@ export default function AISizeModal({
                     />
                     <select
                       value={formData.weightUnit}
-                      onChange={(e) => setFormData({ ...formData, weightUnit: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          weightUnit: e.target.value as 'kg' | 'lbs',
+                        })
+                      }
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none
                                focus:ring-2 focus:ring-gray-400"
                     >

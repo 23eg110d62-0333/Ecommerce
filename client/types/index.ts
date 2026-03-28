@@ -58,7 +58,10 @@ export interface Product {
 export interface Review {
   _id: string;
   productId: string;
-  userId: string;
+  userId: string | {
+    name: string;
+    avatar?: string;
+  };
   rating: number;
   title: string;
   body: string;
@@ -72,10 +75,6 @@ export interface Review {
   unhelpful: number;
   createdAt: string;
   updatedAt: string;
-  userId?: {
-    name: string;
-    avatar?: string;
-  };
 }
 
 // Size recommendation types

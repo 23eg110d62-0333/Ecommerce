@@ -30,56 +30,54 @@ export default function CompleteTheLook({
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  // AI-based product matching logic using category rules
-  const getComplementaryProducts = async () => {
-    setLoading(true);
-    try {
-      // Rule-based matching system:
-      // Blazer → Trousers, Dress Shoes, Belt, Bag
-      // Trousers → Blazer, Shirt, Shoes
-      // Dress → Heels, Clutch, Accessories
-      // Shirt → Trousers, Jacket, Loafers
-
-      const categoryMatches: Record<string, string[]> = {
-        blazers: ['trousers', 'accessories', 'shoes'],
-        trousers: ['shirts', 'blazers', 'accessories'],
-        dresses: ['accessories', 'outerwear'],
-        shirts: ['trousers', 'accessories', 'blazers'],
-        shoes: ['trousers', 'accessories'],
-        outerwear: ['trousers', 'accessories', 'blazers'],
-      };
-
-      const categoriesToSearch = categoryMatches[currentProduct.category] || [];
-
-      // Fetch complementary products from each category
-      const allSuggestions: Product[] = [];
-
-      for (const category of categoriesToSearch.slice(0, 3)) {
-        try {
-          const response = await fetch(
-            `/api/products/related?id=${currentProductId}&category=${category}&limit=2`
-          );
-          const data = await response.json();
-
-          if (data.success && data.data) {
-            allSuggestions.push(...data.data.slice(0, 1)); // Take 1 from each category
-          }
-        } catch (error) {
-          console.error(`Error fetching ${category} products:`, error);
-        }
-      }
-
-      setSuggestedProducts(allSuggestions.slice(0, 4));
-    } catch (error) {
-      console.error('Error loading complementary products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    getComplementaryProducts();
-  }, [currentProductId]);
+    const fetchComplementaryProducts = async () => {
+      setLoading(true);
+
+      try {
+        // Rule-based matching system:
+        // Blazer → Trousers, Dress Shoes, Belt, Bag
+        // Trousers → Blazer, Shirt, Shoes
+        // Dress → Heels, Clutch, Accessories
+        // Shirt → Trousers, Jacket, Loafers
+
+        const categoryMatches: Record<string, string[]> = {
+          blazers: ['trousers', 'accessories', 'shoes'],
+          trousers: ['shirts', 'blazers', 'accessories'],
+          dresses: ['accessories', 'outerwear'],
+          shirts: ['trousers', 'accessories', 'blazers'],
+          shoes: ['trousers', 'accessories'],
+          outerwear: ['trousers', 'accessories', 'blazers'],
+        };
+
+        const categoriesToSearch = categoryMatches[currentProduct.category] || [];
+        const allSuggestions: Product[] = [];
+
+        for (const category of categoriesToSearch.slice(0, 3)) {
+          try {
+            const response = await fetch(
+              `/api/products/related?id=${currentProductId}&category=${category}&limit=2`
+            );
+            const data = await response.json();
+
+            if (data.success && data.data) {
+              allSuggestions.push(...data.data.slice(0, 1));
+            }
+          } catch (error) {
+            console.error(`Error fetching ${category} products:`, error);
+          }
+        }
+
+        setSuggestedProducts(allSuggestions.slice(0, 4));
+      } catch (error) {
+        console.error('Error loading complementary products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComplementaryProducts();
+  }, [currentProductId, currentProduct.category]);
 
   // Handle quick add to cart
   const handleQuickAdd = async (product: Product) => {
