@@ -1,7 +1,6 @@
 node_modules/
 .next/
 **/next-env.d.ts
-client/next.config.mjs
 *.log
 dist/
 
